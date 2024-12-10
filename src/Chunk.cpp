@@ -44,6 +44,7 @@ void Chunk::InitChunk()
 	SetChunkIndices();
 
 	m_FirstLoad.store(true);
+	std::cout << "made chunk" << std::endl;
 }
 
 void Chunk::ChunkFirstLoad()

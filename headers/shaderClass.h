@@ -32,7 +32,7 @@ class Shader
 
 	public:
 		GLuint m_ID;
-
+		Shader() {};
 		Shader(const std::string& filename);
 		static void DeleteShaders();
 		static void InitShaders();

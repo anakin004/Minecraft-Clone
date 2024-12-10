@@ -1,12 +1,12 @@
 
 #include "Minecraft.h"
+#include "Self.h"
 
 
 
 GLFWwindow* window = nullptr;
-int WIDTH = 1280;
-int HEIGHT = 720;
-
+const int WIDTH = 1280;
+const int HEIGHT = 720;
 
 
 
@@ -21,6 +21,16 @@ Minecraft::~Minecraft() {
 
 
 
+void Minecraft::Init()
+{
+	glm::vec3 pos = { 0,7,0 };
+	m_Player.emplace(pos);
+
+	m_Base = Shader::getShader("base.shader");
+	m_Light = Shader::getShader("light.shader");
+}
+
+
 void Minecraft::Run() {
 
 
@@ -33,45 +43,29 @@ void Minecraft::Run() {
 	Shader::InitShaders();
 	Texture::InitTextures();
 
-	glm::vec3 pos = { 0,7,0 };
-	World w(5, pos);
+	// now we init Player
+	// the since player is contained the world
+	// the world is initialized, allows for better encapsulization
+	Init();
+
 
 	{
 
-		Gui gui(window);
+		// removing gui as needed
+		// throughout development
+		//Gui gui(window);
 
-		glm::mat4 identityMatrix(1.0f);
-
-		glm::vec3 camPos(0, 7, 0);
-		Camera cam(WIDTH, HEIGHT, camPos, 55.0f, 1.0f, 100.0f);
 		Renderer renderer;
-
-		Shader* base = Shader::getShader("base.shader");
-		Shader* light = Shader::getShader("light.shader");
-
 
 		while (!glfwWindowShouldClose(window))
 		{
 			renderer.Clear();
 
 			//gui.HandleGui(cam.GetPos());
-			cam.Inputs(window);
-			cam.SetMVP(identityMatrix);
-
-
-			base->Bind();
-			base->SetUniformVec3f("u_camPos", glm::normalize(cam.GetPos()));
-			cam.PushMVP(base, "u_camMatrix");
-
-
-			w.Update(cam.GetPos());
-			w.HandleChunks(cam.GetPos());
-
-
-			light->Bind();
-			cam.PushMVP(light, "u_camMatrix");
-			w.RenderLight();
 			
+			m_Player->updatePerspective(m_Base, m_Light);
+			Update(); 
+			Render();
 
 			// Swap the back buffer with the front buffer
 			glfwSwapBuffers(window);
@@ -85,6 +79,20 @@ void Minecraft::Run() {
 		// which we have no active context
 	}
 
+}
+
+
+void Minecraft::Update() {
+	m_Player->UpdateWorld(m_Player->getPos());
+}
+
+void Minecraft::Render()
+{
+	m_Base->Bind();
+	m_Player->RenderChunks();
+
+	m_Light->Bind();
+	m_Player->RenderLight();
 }
 
 

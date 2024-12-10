@@ -5,7 +5,12 @@
 std::vector<Chunk*> World::m_Chunks;
 std::unordered_map <std::pair<int, int>, Chunk*, pair_hash> World::m_ChunkMap;
 
-World::World(int renderDist, glm::vec3& playerStartPosition) : m_WorldLight(), m_RenderDistance(renderDist), m_ChunkAllocateTime(0),
+// default constructor
+World::World() : m_WorldLight(), m_RenderDistance(5), m_ChunkAllocateTime(0), pool(4) {
+
+}
+
+World::World(int renderDist) : m_WorldLight(), m_RenderDistance(renderDist), m_ChunkAllocateTime(0),
 
 	// i have 10 cores so i could have 10 threads without having context switching
 	// For my specs, running with 1 thread in the pool works even thought a pool with one thread makes little sense
@@ -31,14 +36,29 @@ void World::HandleChunks(glm::vec3& playerPos)
 
 	for (auto& chunk : m_Chunks)
 	{
-		if (chunk->Loaded()) {
+		if (chunk->Loaded()) 
 			chunk->UpdateRenderStatus(playerPos, m_RenderDistance);
-			chunk->RenderChunk();
-		}
+		
 		else
 			chunk->ChunkFirstLoad();
 	}
 
+}
+
+
+void World::RenderChunks() {
+	for (auto& chunk : m_Chunks)
+	{
+		if (chunk->Loaded()) {
+			chunk->RenderChunk();
+		}
+	}
+}
+
+void World::UpdateWorld(glm::vec3& playerPos)
+{
+	UpdateRender(playerPos);
+	HandleChunks(playerPos);
 }
 
 void World::RenderLight()
@@ -60,7 +80,10 @@ Chunk* World::GetChunk(int x, int z)
 
 }
 
-void World::Update(glm::vec3& playerPos)
+
+
+
+void World::UpdateRender(glm::vec3& playerPos)
 {
 
 	int chunkX = (int)playerPos.x / CHUNK_SIZE;

@@ -21,7 +21,7 @@ class Camera
 {
 public:
 
-	Camera(int width, int height, glm::vec3& position, float fov, float nearPlane, float farPlane);
+	Camera(int width, int height, glm::vec3 position, float fov, float nearPlane, float farPlane);
 
 
 	void PushMVP(Shader* shader, const std::string& uniform);

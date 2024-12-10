@@ -21,13 +21,20 @@ class World {
 
 
 public:
+	//default constructor
+	World();
 
-	World(int renderDist, glm::vec3& playerStartPosition );
+	World(int renderDist);
 	~World();
 
 	void AddChunk();
-	void Update(glm::vec3& playerPos);
+	void RenderChunks();
+	void UpdateRender(glm::vec3& playerPos);
 	void HandleChunks(glm::vec3& playerPos);
+
+	// wrapper for handle chunks and update render
+	void UpdateWorld(glm::vec3& playerPos);
+
 	void RenderLight();
 
 	//@param divide x and z by 16 before you getchunk, we arent using world coords for mapping

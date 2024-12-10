@@ -8,12 +8,14 @@ const float TERMINAL_VELOCITY = -50.0f;
 const float fixedDeltaTime = 1.0f / 144.0f; // 144 updates per second (16.66 ms per update)
 
 
-Camera::Camera(int width, int height, glm::vec3& position, float fov, float nearPlane, float farPlane)
+Camera::Camera(int width, int height, glm::vec3 position, float fov, float nearPlane, float farPlane)
 	: m_Width(width), m_Height(height), m_Position(position), m_MVP(glm::mat4(1.0f)), m_Orientation(0.0f, 0.0f, -1.0f)
 {
 	m_ProjectionMat = glm::perspective(glm::radians(fov), float(m_Width) / float(m_Height), nearPlane, farPlane);
 }
 
+// handling pushing mvps with camera is easier since we can simply avoid calling getters for camera
+// being able to handle it in once place
 void Camera::PushMVP(Shader* shader, const std::string& uniform)
 {
 	shader->SetUniformMat4f(uniform, m_MVP);
@@ -156,6 +158,10 @@ void Camera::Inputs(GLFWwindow* window)
 		
 		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
 		{
+
+			// for destroying blocks, going to make a wrapper
+			// just trying to get it down for now 
+
 			Ray newRay = Ray(m_Position, m_Orientation);
 			bool hit = false;
 			bool first = true;

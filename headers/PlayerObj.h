@@ -16,7 +16,7 @@ class PlayerObj : public World {
 
 public:
 	
-
+	PlayerObj();
 
 
 
