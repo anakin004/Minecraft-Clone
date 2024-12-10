@@ -12,4 +12,6 @@ All dependencies are included in lib folder besides opengl
 
 
 
-https://github.com/user-attachments/assets/7d1c87d8-0dff-4a64-ac82-bb767161bf4d
+
+https://github.com/user-attachments/assets/3c3496bb-8ec6-4609-9274-fcccd26ff0b4
+
