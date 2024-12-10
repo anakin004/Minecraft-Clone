@@ -10,8 +10,9 @@ All dependencies are included in lib folder besides opengl
 -- Had to remake this repistory, some weird stuff was happening with Visual Studio
 
 
+-- working on making a demo video, should be up tomorrow and will update this, lost it somehow...
 
 
 
-https://github.com/user-attachments/assets/3c3496bb-8ec6-4609-9274-fcccd26ff0b4
+
 
