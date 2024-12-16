@@ -333,10 +333,4 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 
-
-from make file if you want
-g++ -o server src/fighterV2/server.cpp -Iinclude/sdl -lmingw32 -lSDL2main -Llib -lSDL2 -lSDL2_net
-./server
-
-
 */
