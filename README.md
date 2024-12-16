@@ -7,7 +7,7 @@ Voxel/Minecraft Game with Multiplayer Using SDLnet and OpenGL
 
 All dependencies are included in lib folder besides opengl
 
--- Had to remake this repistory, some weird stuff was happening with Visual Studio
+-- you may also need to install sdl2 sdlnet and assimp, you will need a lib and dll, the dll's go in the executable directory, in debug folder
 
 
 ![image](https://github.com/user-attachments/assets/5a84dd50-dbf8-44e9-9f9d-cf1f5b70e858)
