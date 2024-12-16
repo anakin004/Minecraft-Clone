@@ -9,13 +9,14 @@ std::unordered_map<std::string, Shader*> Shader::m_ShaderLocationCache = {};
 // Constructor that build the Shader Program from 2 different shaders
 Shader::Shader(const std::string& filepath) : m_UniformLocationCache()
 {
+
 	// Read vertexFile and fragmentFile 
 	ShaderProgramSource shaderCode = get_file_contents(filepath);
+
 
 	// Convert the shader source strings into character arrays
 	const char* vertexSource = shaderCode.VertexSource.c_str();
 	const char* fragmentSource = shaderCode.FragmentSource.c_str();
-
 
 
 	// Create Vertex Shader Object and get its reference
@@ -56,7 +57,7 @@ Shader::Shader(const std::string& filepath) : m_UniformLocationCache()
 ShaderProgramSource get_file_contents(const std::string& filename)
 {
 	std::ifstream in(filename.c_str(), std::ios::binary);
-	
+
 
 	enum class ShaderType
 	{
@@ -68,20 +69,27 @@ ShaderProgramSource get_file_contents(const std::string& filename)
 
 	ShaderType type = ShaderType::NONE;
 
-	if (in)
+
+	if (1)
 	{
+
+
 		std::string line;
+
 
 		while (getline(in, line))
 		{
+
 			if (line.find("#shader") != std::string::npos)
 			{
 				if (line.find("vertex") != std::string::npos)
 				{
+
 					type = ShaderType::VERTEX;
 				}
 				else if (line.find("fragment") != std::string::npos)
 				{
+
 					type = ShaderType::FRAGMENT;
 
 				}
@@ -102,7 +110,7 @@ void Shader::SetUniformMat4f(const std::string& uni_name, const glm::mat4& matri
 {
 	// obv id, then num of matrix's which is 1, then whether or not we have a row
 	// major matrix or column to transpose, since its col we dont
-	glUniformMatrix4fv(getUniform(uni_name), 1, GL_FALSE, &matrix[0][0]);
+	glUniformMatrix4fv(getUniform(uni_name), 1, GL_FALSE, glm::value_ptr(matrix));
 }
 
 void Shader::SetUniform3fs(const std::string& uni_name, const glm::vec3 vector[6])
@@ -113,7 +121,9 @@ void Shader::SetUniform3fs(const std::string& uni_name, const glm::vec3 vector[6
 
 void Shader::InitShaders()
 {
+
 	Shader* baseShader = new Shader("resources/base.shader");
+
 	m_ShaderLocationCache["base.shader"] = baseShader;
 
 	baseShader->Bind();
@@ -123,6 +133,7 @@ void Shader::InitShaders()
 	// constructing the light source
 	Shader* lightShader = new Shader("resources/light.shader");
 	m_ShaderLocationCache["light.shader"] = lightShader;
+
 
 	lightShader->Bind();
 
@@ -136,12 +147,15 @@ void Shader::InitShaders()
 	lightShader->SetUniformVec4f("u_lightColor", glm::vec4(lightColor, 1.0f));
 	lightShader->SetUniformMat4f("u_modelMatrix", lightModelMatrix);
 
-
 	baseShader->Bind();
 	baseShader->SetUniformVec3f("u_lightColor", lightColor);
-	baseShader->SetUniformVec3f("u_lightPos", lightPos);
-	baseShader->SetUniformVec3f("u_lightNorm", lightNorm);
-	baseShader->SetUniform3fs("u_faceNorms", FaceNormals);
+	//baseShader->SetUniformVec3f("u_lightPos", lightPos);
+	//baseShader->SetUniformVec3f("u_lightNorm", lightNorm);
+	//baseShader->SetUniform3fs("u_faceNorms", FaceNormals);
+
+
+	Shader* modelShader = new Shader("resources/model.shader");
+	m_ShaderLocationCache["model.shader"] = modelShader;
 
 
 }
@@ -179,7 +193,7 @@ GLint Shader::getUniform(const std::string& name)
 		return m_UniformLocationCache[name];
 	
 	GLint loc = glGetUniformLocation(m_ID, name.c_str());
-	if (loc == -1 && name == "u_faceNorms")
+	if (loc == -1)
 		std::cout << "Warning: uniform: " << name << " does not exist" << std::endl; 
 	else
 		m_UniformLocationCache[name] = loc;

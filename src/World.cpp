@@ -1,5 +1,5 @@
 #include "World.h"
-
+#include "Debug.h"
 
 
 std::vector<Chunk*> World::m_Chunks;
@@ -10,7 +10,7 @@ World::World() : m_WorldLight(), m_RenderDistance(5), m_ChunkAllocateTime(0), po
 
 }
 
-World::World(int renderDist) : m_WorldLight(), m_RenderDistance(renderDist), m_ChunkAllocateTime(0),
+World::World(int renderDist) : m_WorldLight(), m_RenderDistance(renderDist), m_ChunkAllocateTime(0), m_AtlasID(0),
 
 	// i have 10 cores so i could have 10 threads without having context switching
 	// For my specs, running with 1 thread in the pool works even thought a pool with one thread makes little sense
@@ -18,7 +18,7 @@ World::World(int renderDist) : m_WorldLight(), m_RenderDistance(renderDist), m_C
 	pool(4)
 {
 
-
+	m_AtlasID = Texture::GetTexture(0)->getTextureID();
 }
 
 
@@ -47,12 +47,15 @@ void World::HandleChunks(glm::vec3& playerPos)
 
 
 void World::RenderChunks() {
+	GlCall(glBindTexture(GL_TEXTURE_2D, m_AtlasID));
 	for (auto& chunk : m_Chunks)
 	{
 		if (chunk->Loaded()) {
 			chunk->RenderChunk();
 		}
 	}
+	GlCall(glBindTexture(GL_TEXTURE_2D, 0));
+
 }
 
 void World::UpdateWorld(glm::vec3& playerPos)

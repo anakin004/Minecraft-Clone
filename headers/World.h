@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include <utility>  
 #include "Chunk.h"
+#include "Texture.h"
 
 struct pair_hash {
 	template <class T1, class T2>
@@ -53,6 +54,8 @@ private:
 	double m_ChunkAllocateTime;
 
 	int m_RenderDistance;
+
+	GLint m_AtlasID;
 
 };
 

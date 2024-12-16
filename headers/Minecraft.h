@@ -26,21 +26,12 @@
 #include "Chunk.h"
 #include "World.h"
 #include "Self.h"
-#include <optional>
 
 
 class Minecraft {
 
 
 private:
-
-	// we need to delay creation since we make gl calls
-	// in parent classes, vao's, vbo's, etc
-	// we need to init gl first before we do this
-	// init gl happens in the beginning of running minecraft
-	// so we need to init after we call that
-
-	std::optional<Self> m_Player;
 
 	
 	// thought it would be better to have all the shaders contained in this class
@@ -59,8 +50,6 @@ public:
 
 	void Init();
 	void Run();
-	void Update();
-	void Render();
 
 
 	Minecraft() {}

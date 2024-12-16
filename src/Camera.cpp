@@ -3,6 +3,8 @@
 #include "Ray.h"
 #include "mathUtil.h"
 
+const float M_PI = 3.14159265359f;
+
 const float GRAVITY = -9.81f * 2.7; // amplifying gravity
 const float TERMINAL_VELOCITY = -50.0f;
 const float fixedDeltaTime = 1.0f / 144.0f; // 144 updates per second (16.66 ms per update)
@@ -21,13 +23,23 @@ void Camera::PushMVP(Shader* shader, const std::string& uniform)
 	shader->SetUniformMat4f(uniform, m_MVP);
 }
 
-void Camera::SetMVP( glm::mat4& modelMat)
+void Camera::SetMVP( glm::mat4& modelMat, bool setForModel )
 {
 
 	glm::mat4 view = glm::lookAt(m_Position, m_Orientation + m_Position, m_Up);
-	m_MVP = m_ProjectionMat * view * modelMat;
+	std::cout << m_Orientation.x << " " << m_Orientation.y<< " " << m_Orientation.z << "\n";
+
+	glm::mat4 model(1.0f);
+	if (setForModel) {
+		model = glm::rotate(model, glm::radians(-90.f), glm::vec3(1.f, 0.f, 0.f));
+		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 30.0f));
+		model = glm::scale(model, glm::vec3(.1f, .1f, .1f));
+	}
+
+	m_MVP = m_ProjectionMat * view * model;
 
 }
+
 
 
 void Camera::Inputs(GLFWwindow* window)
@@ -88,7 +100,7 @@ void Camera::Inputs(GLFWwindow* window)
 
 	
 	Chunk* curChunk = World::GetChunk(chunkX, chunkZ);
-
+	/*
 	if (curChunk != nullptr)
 	{
 		int* heightMap = curChunk->GetHeights();
@@ -135,7 +147,7 @@ void Camera::Inputs(GLFWwindow* window)
 			m_CurAirVel = 0.0f;  // Ensure no upward force if grounded
 		}
 	}
-	
+	*/
 
 	// PAUSING
 	if (!m_Paused && glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -155,41 +167,27 @@ void Camera::Inputs(GLFWwindow* window)
 	if( !m_Paused )
 	{
 
-		
-		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+		static bool click = false;
+		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && click==false)
 		{
-
-			// for destroying blocks, going to make a wrapper
-			// just trying to get it down for now 
+			click = true;
 
 			Ray newRay = Ray(m_Position, m_Orientation);
-			bool hit = false;
-			bool first = true;
-			static float timeHeld = 0;
+			newRay.rayMarchDestroy();
 
-			static double lastHit = -2;
-			if (glfwGetTime() - lastHit > .5) {
-				lastHit = glfwGetTime(); // Always update time when the loop is entered
-				while (!hit) {
-					const glm::vec3 cur = newRay.march();
+		}
 
-					if (vec3Dist(cur, m_Position) >= 4) break;
+		else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS && click==false)
+		{
+			click = true;
 
-					int cx = (int)std::floor(cur.x / 16.f);
-					int cz = (int)std::floor(cur.z / 16.f);
-					int x = (int)std::floor(cur.x - 16 * cx);
-					int y = (int)std::floor(cur.y);
-					int z = (int)std::floor(cur.z - 16 * cz);
-					Chunk* c = World::GetChunk(cx, cz);
+			Ray newRay = Ray(m_Position, m_Orientation);
+			newRay.rayMarchPlace();
+			
+		}
 
-					hit = c->CheckBit(x, y, z);
-					std::cout << y;
-					if (hit) {
-						//std::cout << "Player Pos is: " << m_Position.x << " " << m_Position.y << std::endl;
-						c->RemoveBlock(x, y, z);
-					}
-				}
-			}
+		else {
+			click = false;
 		}
 
 		double mouseX;

@@ -9,6 +9,8 @@ extern const blockCoordGroup GrassCoords;
 extern const blockCoordGroup DirtCoords;
 extern const blockCoordGroup WaterCoords;
 extern const blockCoordGroup StoneCoords;
+extern const blockCoordGroup SandCoords;
+extern const blockCoordGroup WoodCoords;
 
 
 

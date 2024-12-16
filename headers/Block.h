@@ -48,7 +48,7 @@ struct indexCoords {
 class Block
 {
 public:
-
+	// sidex sidey, topx topy, botx boty
 	Block(int sideX, int sideY, int topX, int topY, int botX, int botY, int spriteSize, float textureWidth);
 
 

@@ -6,7 +6,7 @@ VBO::VBO()
 {
 	glGenBuffers(1, &m_ID);
 	glBindBuffer(GL_ARRAY_BUFFER, m_ID);
-	GlCall(glBufferData(GL_ARRAY_BUFFER, sizeof(BaseBlock) * CHUNK_SIZE * CHUNK_SIZE * MAX_LEVELS, nullptr, GL_DYNAMIC_DRAW));
+	GlCall(glBufferData(GL_ARRAY_BUFFER, sizeof(BaseBlock) * CHUNK_SIZE * CHUNK_SIZE * MAX_LEVELS / 2, nullptr, GL_DYNAMIC_DRAW));
 }
 
 

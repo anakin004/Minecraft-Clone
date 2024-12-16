@@ -25,7 +25,7 @@ public:
 
 
 	void PushMVP(Shader* shader, const std::string& uniform);
-	void SetMVP( glm::mat4 &modelMat);
+	void SetMVP(glm::mat4& modelMat, bool setForModel);
 	void Inputs(GLFWwindow* window);
 
 	glm::vec3& GetPos() { return m_Position; }

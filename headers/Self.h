@@ -13,16 +13,14 @@ public:
 
 	// updating camera, changes orientation and position, need to update mvp for
 	// both shaders
-	void updatePerspective(Shader* base, Shader* light);
-	glm::vec3& getPos() { return m_Camera.GetPos(); }
-
+	void updatePerspective(Shader* base, Shader* light, Shader* model);
+	inline glm::vec3& getPos() { return m_Camera.GetPos(); }
+	void Render(Shader* shader);
 
 
 private:
 
 	Camera m_Camera;
-
-
 
 
 };

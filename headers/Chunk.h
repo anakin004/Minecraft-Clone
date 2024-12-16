@@ -27,9 +27,10 @@ public:
 	void InitChunk();
 	void SetChunkBlocks(int , int);
 	void RemoveBlock(int, int, int);
+	void PlaceBlock(int, int, int, verts*, Direction);
 	void SetFaceTextureCoord(blockCoords& side, int corner, verts* vertice);
 	void SetChunkIndices();
-	void SetBlockState(int x, int y, int z, bool state);
+	void SetBlockState(int x, int z, int y, bool state);
 	bool CheckBit(int x, int z, int y);
 	void SetCulledFaces();
 	void DestroyChunkEnd();
@@ -39,13 +40,14 @@ public:
 	void ChunkFirstLoad();
 	void UpdateRenderStatus(glm::vec3& playerPos, GLuint renderDist);
 
-	bool CheckNeighborCull(int xPos, int zPos, int xIdx, int zIdx, int yIdx, Direction dir);
-	bool GetBlockState(int x, int y, int z, Direction dir);
+	static bool CheckNeighborCull(int xPos, int zPos, int xIdx, int zIdx, int yIdx, Direction dir);
+	bool GetBlockState(int x, int z, int y, Direction dir);
 
 	inline bool ChunkIsActive() { return m_IsActive; };
 	inline void DeActiveChunk() { m_IsActive = false; };
 	inline void ActivateChunk() { m_IsActive = true; };
 	inline int* GetHeights() { return &m_HeightMap[0][0]; }
+	inline verts* GetBlock(int x, int z, int y) { return &m_AllChunkVerts[x][z][y][0]; }
 	inline bool Loaded() { return m_Loaded; };
 
 

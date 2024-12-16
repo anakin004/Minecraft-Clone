@@ -1,6 +1,9 @@
 #include "Chunk.h"
 #include "World.h"
 
+// this is for placed blocks when rendering based off of perlin noise height
+#define OFFSET 10
+
 std::mutex Chunk::m_ChunkMutex;
 
 Chunk::Chunk(int xOffset, int zOffset) :
@@ -19,11 +22,11 @@ Chunk::Chunk(int xOffset, int zOffset) :
 
 	// we do all the side faces then top then bottom in the BaseBlock declaration
 	const int vertsPerBlock = sizeof(BaseBlock) / sizeof(BaseBlock[0]);
-	m_CulledChunkVerts = new verts[(vertsPerBlock * CHUNK_SIZE*CHUNK_SIZE*2 + MAX_LEVELS*CHUNK_SIZE * 4)];
+	m_CulledChunkVerts = new verts[(vertsPerBlock * CHUNK_SIZE*CHUNK_SIZE * MAX_LEVELS/2)];
 
 
 	const int indicesPerBlock = sizeof(BaseBlockIndices) / sizeof(BaseBlockIndices[0]);
-	m_ChunkIndices = new indexCoords[indicesPerBlock * CHUNK_SIZE * CHUNK_SIZE * MAX_LEVELS];
+	m_ChunkIndices = new indexCoords[indicesPerBlock * CHUNK_SIZE * CHUNK_SIZE * MAX_LEVELS/2];
 
 
 	m_FirstLoad.store(false);
@@ -33,6 +36,8 @@ Chunk::Chunk(int xOffset, int zOffset) :
 	m_VAO.LinkAttrib(m_VBO, 2, 1, GL_BYTE, sizeof(verts), (void*)(offsetof(verts, faceIndex)));
 
 	UnbindBuffers();
+
+
 }
 
 
@@ -44,7 +49,6 @@ void Chunk::InitChunk()
 	SetChunkIndices();
 
 	m_FirstLoad.store(true);
-	std::cout << "made chunk" << std::endl;
 }
 
 void Chunk::ChunkFirstLoad()
@@ -59,7 +63,7 @@ void Chunk::ChunkFirstLoad()
 
 }
 
-void Chunk::SetBlockState(int x, int y, int z, bool state)
+void Chunk::SetBlockState(int x, int z, int y, bool state)
 {
 	if (state) 
 		m_BlockStates[x][z].set(y);
@@ -103,7 +107,7 @@ void Chunk::SetChunkIndices()
 	}
 }
 
-void Chunk::RemoveBlock(int x, int y, int z)
+void Chunk::RemoveBlock(int x, int z, int y)
 {
 
 	// Mark the block as removed by resetting its state
@@ -115,6 +119,36 @@ void Chunk::RemoveBlock(int x, int y, int z)
 
 	LoadChunk();
 	
+}
+
+
+void Chunk::PlaceBlock(int x, int z, int y, verts* base, Direction dir)
+{
+	// quick workaround instead of aabb boxes for now
+	constexpr int vertsPerBlock = sizeof(BaseBlock) / sizeof(BaseBlock[0]);
+
+
+	const glm::vec3& dirNorm = FaceNormals[dir];
+	std::array<verts, vertsPerBlock> newBlock = makeNewBlock(dirNorm, base, WoodCoords);
+
+	int dx = x + (int)dirNorm.x;
+	int dz = z + (int)dirNorm.z;
+	int dy = y + (int)dirNorm.y;
+
+
+	for (int k = 0; k < vertsPerBlock; k++) {
+		m_AllChunkVerts[dx][dz][dy][k] = newBlock[k];
+	}
+
+
+	//std::cout << dx << " " << dy << " " << dz << "\n";
+	m_BlockStates[dx][dz].set(dy);
+
+	SetCulledFaces();
+	SetChunkIndices();
+
+	LoadChunk();
+
 }
 
 
@@ -181,131 +215,101 @@ void Chunk::RenderChunk()
 static inline Chunk* GetNeighborChunk(int x, int z) { return World::GetChunk(x / 16, z / 16); }
 
 
-bool Chunk::CheckBit(int x, int y, int z)
+bool Chunk::CheckBit(int x, int z, int y)
 {
 	bool solid = m_BlockStates[x][z].test(y);
 	
 	return solid;
 }
 
-// dir will be the face we are checking we want to cull an edge block, if the face 
-// is north facing, it means we need to  z + 15
-// if its south facing then its  z - 15
-// left facing - x + 15, right facing x - 15;
-bool Chunk::GetBlockState(int x, int y, int z, Direction dir)
+
+
+bool Chunk::GetBlockState(int x, int z, int y, Direction dir)
 {
 	if (y < 0)
 		return false;
 
-
 	bool isSolid = false;
-
 	switch (dir) {
-
 	case NORTH:
-		isSolid = CheckBit(x, z - CHUNK_SIZE + 1, y);
-		return isSolid;
+		isSolid = CheckBit(x, 0, y);
+		SetBlockState(x, 0, y, isSolid);
+		return isSolid;  
 	case SOUTH:
-		isSolid = CheckBit(x, z + CHUNK_SIZE - 1, y);
+		isSolid = CheckBit(x, CHUNK_SIZE-1, y);
+		SetBlockState(x, CHUNK_SIZE-1, y, isSolid);
 		return isSolid;
 	case EAST:
-		isSolid = CheckBit(x - CHUNK_SIZE + 1, z, y+1);
+		isSolid = CheckBit(0, z, y);
+		SetBlockState(0, z, y, isSolid);
 		return isSolid;
 	case WEST:
-		isSolid = CheckBit(x + CHUNK_SIZE - 1, z, y+1);
+		isSolid = CheckBit(CHUNK_SIZE-1, z, y);
+		SetBlockState(CHUNK_SIZE-1, z, y, isSolid);
 		return isSolid;
-
-		// if its a top block or bottom block we dont want to cull it
 	default:
 		return false;
 	}
 }
 
 
+
 bool Chunk::CheckNeighborCull(int xPos, int zPos, int xIdx, int zIdx, int yIdx, Direction dir)
 {
+	std::lock_guard<std::mutex> lock(m_ChunkMutex);
 	Chunk* neighbor = GetNeighborChunk(xPos, zPos);
 
-	// we dont cull if neighbor doesnt exist
 	if (neighbor == nullptr)
 		return false;
 
-	bool isSolid = neighbor->GetBlockState(xIdx, yIdx, zIdx, dir);
-
-	// possibly cull if neighbor exists and there is a block next to block we want to check
-	return isSolid;
+	return neighbor->GetBlockState(xIdx, zIdx, yIdx, dir);
 }
-
 
 void Chunk::SetCulledFaces()
 {
 	const int vertsPerBlock = sizeof(BaseBlock) / sizeof(BaseBlock[0]);
-
 	const int numFaces = 6;
 	const int vertsPerFace = 4;
 
-	// in the case we want to reset culled faces we reset numverts
 	m_NumVerts = 0;
 
-
 	for (int x = 0; x < CHUNK_SIZE; x++) {
-
 		for (int z = 0; z < CHUNK_SIZE; z++) {
+			int height = std::max(0, m_HeightMap[x][z]) + OFFSET;
 
-			int height = std::max(0,m_HeightMap[x][z]);
-
-		
-
-			for (int y = 0; y <= height + (-MAX_DEPTH); y++)
-			{
-
+			for (int y = 0; y <= height + (-MAX_DEPTH); y++) {
 				if (!m_BlockStates[x][z].test(y))
 					continue;
 
-				Direction dir = NORTH;
-				for (int k = 0; k < numFaces; k++)
-				{
-
-					
-
+				for (int k = 0; k < numFaces; k++) {
+					Direction dir = static_cast<Direction>(k);
 					bool cull = false;
 
-					verts* curVert = &m_AllChunkVerts[x][z][y][k* vertsPerFace];
+					int wx = x + DIRECTION_VEC[k].x;
+					int wy = y + DIRECTION_VEC[k].y;
+					int wz = z + DIRECTION_VEC[k].z;
 
-					int wx = DIRECTION_VEC[k].x + x;
-					int wy = DIRECTION_VEC[k].y + y;
-					int wz = DIRECTION_VEC[k].z + z;
-
-					// check bounds
-					if ((wx >= 0 && wy >= 0 && wz >= 0) && (wx < CHUNK_SIZE && wz < CHUNK_SIZE && wy < (MAX_LEVELS)))
+					// Check current chunk bounds
+					if ((wx >= 0 && wy >= 0 && wz >= 0) &&
+						(wx < CHUNK_SIZE && wz < CHUNK_SIZE && wy < MAX_LEVELS))
 					{
-						// if its air block then we want to put the vert into the culled chunk verts
-						if (m_BlockStates[wx][wz].test(wy)) {
-							cull = true;
-						}
+						cull = m_BlockStates[wx][wz].test(wy);
+					}
+					// Check neighboring chunk
+					else {
+						// Calculate world position for neighbor lookup
+						int worldX = wx + m_ChunkX * CHUNK_SIZE;
+						int worldZ = wz + m_ChunkZ * CHUNK_SIZE;
+						//cull = CheckNeighborCull(worldX, worldZ, wx, wz, wy, dir);
 
 					}
 
-					
-					// else check neighboring chunk
-					else
-					{
-						//cull = CheckNeighborCull(wx + m_ChunkX, wz + m_ChunkZ, wx, wz, wy, dir);
-					}
-
-
-
-					if (!cull)
-					{
-						for (int v = 0; v < vertsPerFace ; v++)
-						{
-							verts& curVert = m_AllChunkVerts[x][z][y][ k * vertsPerFace + v];
-							m_CulledChunkVerts[m_NumVerts++] = curVert;
+					if (!cull ) {
+						
+						for (int v = 0; v < vertsPerFace; v++) {
+							m_CulledChunkVerts[m_NumVerts++] = m_AllChunkVerts[x][z][y][k * vertsPerFace + v];
 						}
 					}
-
-					dir = static_cast<Direction>(dir + 1);
-
 				}
 			}
 		}
@@ -337,7 +341,7 @@ void Chunk::SetChunkBlocks(int offsetX, int offsetZ)
 			int top = 0;
 
 			if (height < 0)
-				top = height + (-MAX_DEPTH) +  (-height);
+				top = (-MAX_DEPTH) ;
 			
 			else
 				top = height + (-MAX_DEPTH);

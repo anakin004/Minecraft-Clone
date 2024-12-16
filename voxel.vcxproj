@@ -71,9 +71,9 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\Users\Ryan\source\repos\voxel\Libraries\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Ryan\source\repos\voxel\Libraries\lib;$(LibraryPath)</LibraryPath>
-    <SourcePath>C:\Users\Ryan\source\repos\voxel\src;C:\Users\Ryan\source\repos\voxel\vendor;$(SourcePath)</SourcePath>
+    <IncludePath>$(ProjectDir)\Libraries\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)\Libraries\lib;$(LibraryPath)</LibraryPath>
+    <SourcePath>$(ProjectDir)\src;$(ProjectDir)\vendor;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -110,12 +110,12 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <AdditionalIncludeDirectories>C:\Users\Ryan\source\repos\voxel\headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;SDL2_net.lib;SDL2main.lib;SDL2.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glfw3.lib;opengl32.lib;SDL2_net.lib;SDL2main.lib;SDL2.lib;assimp-vc143-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -144,7 +144,9 @@
     <ClCompile Include="src\Light.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\mathUtil.cpp" />
+    <ClCompile Include="src\Mesh.cpp" />
     <ClCompile Include="src\Minecraft.cpp" />
+    <ClCompile Include="src\Model.cpp" />
     <ClCompile Include="src\network.cpp" />
     <ClCompile Include="src\Object.cpp" />
     <ClCompile Include="src\Perlin.cpp" />
@@ -172,12 +174,6 @@
     <ClCompile Include="vendor\stb.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="base.shader" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="blocks.png" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="headers\Block.h" />
     <ClInclude Include="headers\BlockCoords.h" />
     <ClInclude Include="headers\Camera.h" />
@@ -186,7 +182,9 @@
     <ClInclude Include="headers\EBO.h" />
     <ClInclude Include="headers\Light.h" />
     <ClInclude Include="headers\mathUtil.h" />
+    <ClInclude Include="headers\Mesh.h" />
     <ClInclude Include="headers\Minecraft.h" />
+    <ClInclude Include="headers\Model.h" />
     <ClInclude Include="headers\network.h" />
     <ClInclude Include="headers\noise1234.h" />
     <ClInclude Include="headers\Object.h" />
@@ -203,6 +201,14 @@
     <ClInclude Include="headers\VAO.h" />
     <ClInclude Include="headers\VBO.h" />
     <ClInclude Include="headers\World.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="resources\base.shader" />
+    <None Include="resources\light.shader" />
+    <None Include="resources\model.shader" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="resources\blocks.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

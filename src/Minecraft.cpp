@@ -1,12 +1,12 @@
 
 #include "Minecraft.h"
-#include "Self.h"
 
 
 
 GLFWwindow* window = nullptr;
 const int WIDTH = 1280;
 const int HEIGHT = 720;
+
 
 
 
@@ -21,52 +21,52 @@ Minecraft::~Minecraft() {
 
 
 
-void Minecraft::Init()
-{
-	glm::vec3 pos = { 0,7,0 };
-	m_Player.emplace(pos);
-
-	m_Base = Shader::getShader("base.shader");
-	m_Light = Shader::getShader("light.shader");
-}
-
-
 void Minecraft::Run() {
 
 
 
 	if (!initGL()) {
-		std::cout << "failed to init"; 
+		std::cout << "failed to init";
 		return;
 	}
 
-	Shader::InitShaders();
 	Texture::InitTextures();
-
-	// now we init Player
-	// the since player is contained the world
-	// the world is initialized, allows for better encapsulization
-	Init();
-
+	Shader::InitShaders();
 
 	{
 
-		// removing gui as needed
-		// throughout development
+		World w(2);
 		//Gui gui(window);
+
+
+		glm::mat4 identityMatrix(1.0f);
+
+
+		Self player({ 0,7,0 });
+		player.m_PlayerModel.Init();
 
 		Renderer renderer;
 
+		Shader* base = Shader::getShader("base.shader");
+		Shader* light = Shader::getShader("light.shader");
+		Shader* model = Shader::getShader("model.shader");
+
 		while (!glfwWindowShouldClose(window))
 		{
+
 			renderer.Clear();
 
 			//gui.HandleGui(cam.GetPos());
-			
-			m_Player->updatePerspective(m_Base, m_Light);
-			Update(); 
-			Render();
+			player.updatePerspective(base, light, model);
 
+			w.UpdateWorld(player.getPos());
+
+			light->Bind();
+			w.RenderLight();
+			model->Bind();
+			player.Render(model);
+			base->Bind();
+			w.RenderChunks();
 			// Swap the back buffer with the front buffer
 			glfwSwapBuffers(window);
 			// Take care of all GLFW events
@@ -79,20 +79,6 @@ void Minecraft::Run() {
 		// which we have no active context
 	}
 
-}
-
-
-void Minecraft::Update() {
-	m_Player->UpdateWorld(m_Player->getPos());
-}
-
-void Minecraft::Render()
-{
-	m_Base->Bind();
-	m_Player->RenderChunks();
-
-	m_Light->Bind();
-	m_Player->RenderLight();
 }
 
 
@@ -111,6 +97,10 @@ bool Minecraft::initGL()
 	// In this case we are using OpenGL 3.3
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+
+	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+	glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
 	// Tell GLFW we are using the CORE profile
 	// So that means we only have the modern functions
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -144,4 +134,3 @@ bool Minecraft::initGL()
 
 	return success;
 }
-

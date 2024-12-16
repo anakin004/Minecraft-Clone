@@ -1,8 +1,15 @@
 #ifndef TEXTURE_H
 #define TEXTURE_H
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#ifndef _GLFW_INCLUDES
+#define _GLFW_INCLUDES
+
+	#include <glad/glad.h>
+	#include <GLFW/glfw3.h>
+
+#endif
+
+
 #include <iostream>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -31,7 +38,7 @@ private:
 
 	Texture(const std::string& path, int);
 	
-	inline const GLuint getTextureID() const { return m_ID; };
+
 
 
 public:
@@ -48,6 +55,9 @@ public:
 	inline int getHeight() const { return m_Height; }
 	inline int getSpriteSize() const { return m_SpriteSize; };
 	static std::optional<Texture>& GetTexture(int index);
+
+	inline const GLuint getTextureID() const { return m_ID; };
+
 };
 
 

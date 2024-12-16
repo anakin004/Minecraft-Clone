@@ -1,6 +1,7 @@
 #ifndef UTIL_H
 #define UTIL_H
 
+
 #include <GLFW/glfw3.h>
 #include "Block.h"
 #include <glm/glm.hpp>
@@ -48,5 +49,8 @@ constexpr int CHUNK_SIZE = 16;
 constexpr int CHUNK_HEIGHT = 256;
 
 
+
+Direction dotProdDirs(glm::vec3& ori);
+std::array<verts, 24> makeNewBlock(const glm::vec3& dirNorm, const verts* base, const blockCoordGroup block);
 
 #endif 

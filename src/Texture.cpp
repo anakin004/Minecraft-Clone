@@ -23,7 +23,9 @@ Texture::Texture(const std::string& path, int numSpritesVert)
 
 
 	GlCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_Width, m_Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_ImgBytes));
-	//GlCall(glBindTexture(GL_TEXTURE_2D, 0));
+	glGenerateMipmap(GL_TEXTURE_2D);
+
+	GlCall(glBindTexture(GL_TEXTURE_2D, 0));
 
 	m_SpriteSize = m_Height / numSpritesVert;
 
