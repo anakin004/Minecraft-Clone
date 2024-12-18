@@ -1,4 +1,4 @@
-## This Project is out of service, I am redoing it in another repo called Voxel-Revamped, more on why in said repo
+ ## >>>>>>> This Project is out of service, I am redoing it in another repo called Voxel-Revamped, more on why in said repo <<<<<<
 
 Voxel/Minecraft Game with Multiplayer Using SDLnet and OpenGL
 
