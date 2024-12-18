@@ -1,14 +1,40 @@
 Voxel/Minecraft Game with Multiplayer Using SDLnet and OpenGL
 
--=~ here is a demo
+A 3D Minecraft-like game built in **C++** using **OpenGL**. Explore procedurally generated terrains, interact with dynamic blocks, and enjoy seamless multiplayer functionality.
 
--- working on debugging multiplayer issue with datacenter resitrcting outgoing udp packets
--- implimenting possible workout with proxy - SOCKS5 - https://www.ipvanish.com/socks5-proxy/#:~:text=SOCKS5%20is%20the%20most%20recently,security%20through%20multiple%20authentication%20methods.
+## Features
 
-All dependencies are included in lib folder besides opengl
+- **Procedural Terrain Generation**  
+  - Utilizes **Perlin Noise** for realistic terrain creation  
+  - Multithreaded chunk generation with thread pooling for smooth gameplay without stutterting
+  - Chunking and distance rendering for terrain offloading and generation
 
--- you may also need to install sdl2 sdlnet and assimp, you will need a lib and dll, the dll's go in the executable directory, in debug folder
+- **Graphics and Lighting**  
+  - lighting implemented with **GLSL** shaders  
+  - **Phong Shading** for enhanced visual effects (optional - uncomment from shader and shaderclass src file)
+  - Primarily using ambient lighting to look more Minecraft like
 
+- **Multiplayer Functionality**  
+  - Supports server-client connections using **TCP** and **UDP** protocols
+  - currently on last stretching for implimenting the code, utilizing boiler plate code from a previousl and working multiplayer project, 8-Bit Fighter (check it out too its awesome!)
+  - Optimized for performance in a Linux environment
+
+- **Dynamic Gameplay**  
+  - Break and place blocks with physics-based interactions
+  - You can enable/disable flying in camera, might add a function to switch that on an off with imgui
+  - Infinite world exploration without interruptions
+
+## Technologies Used
+
+- **C++**
+- **OpenGL**
+- **GLSL**
+- **Multithreading**
+- **TCP/UDP Networking**
+- **Linux Virtual Machine** for development and deployment.
+- ** Assimp ** model loader
+- ** SDLnet ** for the networking
+- ** imgui ** for debugging, testing, visualizations, etc
 
 ![image](https://github.com/user-attachments/assets/5a84dd50-dbf8-44e9-9f9d-cf1f5b70e858)
 
