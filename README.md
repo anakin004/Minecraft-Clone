@@ -1,3 +1,5 @@
+## This Project is out of service, I am redoing it in another repo called Voxel-Revamped, more on why in said repo
+
 Voxel/Minecraft Game with Multiplayer Using SDLnet and OpenGL
 
 A 3D Minecraft-like game built in **C++** using **OpenGL**. Explore procedurally generated terrains, interact with dynamic blocks, and enjoy seamless multiplayer functionality.
